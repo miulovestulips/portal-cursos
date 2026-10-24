@@ -1,0 +1,1423 @@
+{
+  "info": {
+    "name": "Portal de Cursos — API propia",
+    "description": "Colección sincronizada con docs/contrato_api.md. Requiere la BD cargada con docs/schema.sql y el servidor en {{baseUrl}}. Ejecutar con el Collection Runner en orden (Postman conserva la cookie de sesión entre peticiones).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "cursoId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Sesiones",
+      "item": [
+        {
+          "name": "POST /sesiones — instructor (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ana.torres@portal.com\",\n  \"password\": \"Demo#2026\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('Devuelve rol instructor', function () { pm.expect(pm.response.json().data.rol).to.eql('instructor'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /sesiones — contraseña incorrecta (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ana.torres@portal.com\",\n  \"password\": \"Incorrecta#1\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /sesiones — faltan campos (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('Incluye detalles', function () { pm.expect(pm.response.json().detalles).to.have.property('email'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /sesiones — JSON mal formado (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"x\", "
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /sesiones — cerrar sesión (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Categorías",
+      "item": [
+        {
+          "name": "GET /categorias (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categorias"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('Hay categorías', function () { pm.expect(pm.response.json().data.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Cursos — consulta pública",
+      "item": [
+        {
+          "name": "GET /cursos (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('Solo cursos activos (no aparece el id 4 dado de baja)', function () { pm.expect(pm.response.json().data.map(c => c.id)).to.not.include(4); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos?q=php — búsqueda parcial (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos?q=php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "php"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('Todos contienen php', function () { pm.response.json().data.forEach(c => pm.expect(c.titulo.toLowerCase()).to.include('php')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos?orden=mas_vendidos (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos?orden=mas_vendidos&limite=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ],
+              "query": [
+                {
+                  "key": "orden",
+                  "value": "mas_vendidos"
+                },
+                {
+                  "key": "limite",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos?desde=fecha-mala (400)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos?desde=ayer",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "ayer"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos/1 (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "1"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('id = 1', function () { pm.expect(pm.response.json().data.id).to.eql(1); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos/abc — id inválido (400)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "abc"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos/9999 — no existe (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "9999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos/4 — dado de baja (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "4"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /ruta-inexistente (404 JSON)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/inexistente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "inexistente"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /cursos — método no permitido (405)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 405', function () { pm.response.to.have.status(405); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Cursos — protegido (ejecutar en orden)",
+      "item": [
+        {
+          "name": "Sin sesión: POST /cursos (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            },
+            "description": "Ejecutar ANTES de iniciar sesión, o tras 'DELETE /sesiones'.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Git desde cero\",\n  \"descripcion\": \"Control de versiones paso a paso.\",\n  \"categoria_id\": 1,\n  \"costo\": 149.5,\n  \"total_niveles\": 4\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () { pm.response.to.have.status(401); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login instructor (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ana.torres@portal.com\",\n  \"password\": \"Demo#2026\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /cursos — crear (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Git desde cero\",\n  \"descripcion\": \"Control de versiones paso a paso.\",\n  \"categoria_id\": 1,\n  \"costo\": 149.5,\n  \"total_niveles\": 4\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "const id = pm.response.json().data.id;",
+                  "pm.collectionVariables.set('cursoId', id);",
+                  "pm.test('Cabecera Location', function () { pm.expect(pm.response.headers.get('Location')).to.include('/api/cursos/' + id); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /cursos — validación (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"ab\",\n  \"descripcion\": \"corta\",\n  \"categoria_id\": 999,\n  \"costo\": -5,\n  \"total_niveles\": 0\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('Detalles por campo', function () { const d = pm.response.json().detalles; pm.expect(d).to.have.property('titulo'); pm.expect(d).to.have.property('categoria_id'); pm.expect(d).to.have.property('costo'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /cursos — JSON mal formado (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"titulo\": "
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /cursos/{{cursoId}} — actualizar (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/{{cursoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "{{cursoId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Git desde cero (2ª edición)\",\n  \"descripcion\": \"Control de versiones paso a paso, actualizado.\",\n  \"categoria_id\": 1,\n  \"costo\": 0,\n  \"total_niveles\": 5\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });",
+                  "pm.test('Ahora es gratis', function () { pm.expect(pm.response.json().data.gratis).to.eql(true); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT /cursos/9999 (404)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "9999"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Git desde cero\",\n  \"descripcion\": \"Control de versiones paso a paso.\",\n  \"categoria_id\": 1,\n  \"costo\": 149.5,\n  \"total_niveles\": 4\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /cursos/{{cursoId}} — baja lógica (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/{{cursoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "{{cursoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cursos/{{cursoId}} — ya no es público (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/{{cursoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "{{cursoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE /cursos/{{cursoId}} — ya dado de baja (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/{{cursoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "{{cursoId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Cursos — control de rol",
+      "item": [
+        {
+          "name": "Login estudiante (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria.lopez@portal.com\",\n  \"password\": \"Demo#2026\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estudiante: POST /cursos (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Git desde cero\",\n  \"descripcion\": \"Control de versiones paso a paso.\",\n  \"categoria_id\": 1,\n  \"costo\": 149.5,\n  \"total_niveles\": 4\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estudiante: DELETE /cursos/1 (403)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos",
+                "1"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login administrador (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@portal.com\",\n  \"password\": \"Admin#2026\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Administrador: POST /cursos (403, solo instructor crea)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Git desde cero\",\n  \"descripcion\": \"Control de versiones paso a paso.\",\n  \"categoria_id\": 1,\n  \"costo\": 149.5,\n  \"total_niveles\": 4\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerrar sesión (200)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. CORS",
+      "item": [
+        {
+          "name": "Preflight desde origen permitido (204)",
+          "request": {
+            "method": "OPTIONS",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:8000"
+              },
+              {
+                "key": "Access-Control-Request-Method",
+                "value": "GET"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', function () { pm.response.to.have.status(204); });",
+                  "pm.test('Allow-Origin presente', function () { pm.expect(pm.response.headers.get('Access-Control-Allow-Origin')).to.eql('http://localhost:8000'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET con origen NO autorizado (403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://sitio-malicioso.example"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preflight desde origen NO autorizado (403)",
+          "request": {
+            "method": "OPTIONS",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://sitio-malicioso.example"
+              },
+              {
+                "key": "Access-Control-Request-Method",
+                "value": "GET"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cursos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });",
+                  "pm.test('Content-Type es JSON', function () { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
